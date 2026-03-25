@@ -45,10 +45,6 @@
 
   </main>
 
-  <!-- 撤銷 Toast -->
-  <div id="undo-toast" style="display:none;position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#1a3a5c;color:#fff;padding:12px 22px;border-radius:24px;font-size:15px;z-index:999;cursor:pointer;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.25);user-select:none;">
-    已選擇 &nbsp;·&nbsp; <strong>點此取消</strong> ✕
-  </div>
 
   <footer class="app-footer">
     IPSS © American Urological Association &nbsp;|&nbsp; 僅供醫療參考使用
@@ -108,19 +104,6 @@
       });
     }
 
-    // ===== 撤銷機制 =====
-    let autoAdvanceTimer = null;
-    const undoToast = document.getElementById('undo-toast');
-
-    function showUndoToast() {
-      undoToast.style.display = 'block';
-      undoToast.onclick = () => {
-        clearTimeout(autoAdvanceTimer);
-        undoToast.style.display = 'none';
-      };
-    }
-    function hideUndoToast() { undoToast.style.display = 'none'; }
-
     function selectOption(qIdx, score) {
       if (isQolIdx(qIdx)) {
         session.qol = score;
@@ -129,17 +112,9 @@
       }
       saveSession(session);
       renderQuestion(qIdx);
-      clearTimeout(autoAdvanceTimer);
-      showUndoToast();
-      autoAdvanceTimer = setTimeout(() => {
-        hideUndoToast();
-        nextQuestion();
-      }, 900);
     }
 
     function nextQuestion() {
-      clearTimeout(autoAdvanceTimer);
-      hideUndoToast();
       const ans = currentAnswer(currentQ);
       if (ans === undefined || ans === null) {
         document.getElementById('error-survey').classList.add('visible');
@@ -156,8 +131,6 @@
     }
 
     function prevQuestion() {
-      clearTimeout(autoAdvanceTimer);
-      hideUndoToast();
       if (currentQ > 0) {
         currentQ--;
         renderQuestion(currentQ);
