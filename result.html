@@ -131,8 +131,7 @@
           return 'M 22 110 A ' + R + ' ' + R + ' 0 0 1 ' + xm + ' ' + ym + ' A ' + R + ' ' + R + ' 0 0 1 ' + xe + ' ' + ye;
         }
         const [x, y] = pt(s);
-        const large = s / 35 > 0.5 ? 1 : 0;
-        return 'M 22 110 A ' + R + ' ' + R + ' 0 ' + large + ' 1 ' + x + ' ' + y;
+        return 'M 22 110 A ' + R + ' ' + R + ' 0 0 1 ' + x + ' ' + y;
       }
 
       // Zone backgrounds
