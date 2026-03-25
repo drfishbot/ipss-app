@@ -282,18 +282,20 @@
     // Persist record to localStorage
     const record = {
       timestamp: new Date().toISOString(),
-      identity: session.identity, // 完整身分證送 Google Sheets（研究用）
-      score: total,
+      mode: session.identity.type === 'idno' ? '身分證' : '匿名',
+      patientId: session.identity.type === 'idno' ? session.identity.value : '',
+      q1: answers[0], q2: answers[1], q3: answers[2], q4: answers[3],
+      q5: answers[4], q6: answers[5], q7: answers[6],
+      qol: session.qol !== undefined ? session.qol : '',
+      total: total,
       grade: info.grade,
-      qol: session.qol,
-      answers: answers,
     };
     const records = JSON.parse(localStorage.getItem('ipss_records') || '[]');
     records.push(record);
     localStorage.setItem('ipss_records', JSON.stringify(records));
 
     // Send to Google Sheets（送遮罩後的資料）
-    const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbypbyrwJOj7AdeO3Hhu7jiio6t0wIrCwXsBVBQCEk0CDJsqKFrrcOL4mwzl0zAhEeQJcQ/exec';
+    const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz11FTrADCPe79TzwnsnjC7lzWozLJAU1bMT6agZpHyTucrXXoFL9w6Ca38i8FIltje/exec';
     fetch(SHEETS_URL, {
       method: 'POST',
       mode: 'no-cors',
