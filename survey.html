@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPSS 問卷填寫</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <span class="logo-icon">🏥</span>
+    <h1>IPSS 攝護腺症狀評分問卷</h1>
+    <p>International Prostate Symptom Score</p>
+  </header>
+
+  <main class="container">
+
+    <div id="patient-bar" class="patient-info-bar" style="display:none;">
+      <span class="info-icon">👤</span>
+      <span id="patient-label"></span>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-header">
+        <span class="progress-label">問卷進度</span>
+        <span class="progress-count" id="progress-count">1 / 7</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-bar" style="width: 14.28%"></div>
+      </div>
+    </div>
+
+    <div class="card question-card">
+      <div class="question-number" id="question-number">第 1 題</div>
+      <p class="question-text" id="question-text"></p>
+      <div class="options-list" id="options-list"></div>
+      <p class="error-msg" id="error-survey">請選擇一個答案後再繼續。</p>
+    </div>
+
+    <div class="survey-nav">
+      <button class="btn-secondary" id="btn-prev" onclick="prevQuestion()">← 上一題</button>
+      <button class="btn-primary btn-next" id="btn-next" onclick="nextQuestion()">下一題 →</button>
+    </div>
+
+  </main>
+
+  <footer class="app-footer">
+    IPSS © American Urological Association &nbsp;|&nbsp; 僅供醫療參考使用
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    const session = getSession();
+
+    if (!session.identity) {
+      navigate('index.html');
+    }
+
+    if (!session.answers) session.answers = [];
+
+    let currentQ = session.answers.length;
+    if (currentQ >= QUESTIONS.length) currentQ = QUESTIONS.length - 1;
+
+    // 顯示病患資訊列
+    if (session.identity && session.identity.type !== 'anonymous') {
+      const bar = document.getElementById('patient-bar');
+      const label = document.getElementById('patient-label');
+      const typeLabel = session.identity.type === 'name' ? '姓名' : '身分證字號';
+      label.textContent = typeLabel + '：' + session.identity.value;
+      bar.style.display = 'flex';
+    }
+
+    function renderQuestion(idx) {
+      const q = QUESTIONS[idx];
+      const answers = session.answers;
+
+      document.getElementById('question-number').textContent = '第 ' + (idx + 1) + ' 題';
+      document.getElementById('question-text').textContent = q.text;
+      document.getElementById('progress-count').textContent = (idx + 1) + ' / ' + QUESTIONS.length;
+      document.getElementById('progress-bar').style.width = ((idx + 1) / QUESTIONS.length * 100) + '%';
+      document.getElementById('btn-prev').style.visibility = idx === 0 ? 'hidden' : 'visible';
+
+      const btnNext = document.getElementById('btn-next');
+      btnNext.textContent = idx === QUESTIONS.length - 1 ? '查看結果 ✓' : '下一題 →';
+
+      document.getElementById('error-survey').classList.remove('visible');
+
+      const list = document.getElementById('options-list');
+      list.innerHTML = '';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn' + (answers[idx] === opt.score ? ' selected' : '');
+        btn.innerHTML =
+          '<span class="option-score">' + opt.score + '</span>' +
+          '<span class="option-text">' + opt.label + '</span>';
+        btn.addEventListener('click', () => selectOption(idx, opt.score));
+        list.appendChild(btn);
+      });
+    }
+
+    let autoAdvanceTimer = null;
+
+    function selectOption(qIdx, score) {
+      session.answers[qIdx] = score;
+      saveSession(session);
+      renderQuestion(qIdx);
+      clearTimeout(autoAdvanceTimer);
+      autoAdvanceTimer = setTimeout(() => nextQuestion(), 400);
+    }
+
+    function nextQuestion() {
+      if (session.answers[currentQ] === undefined || session.answers[currentQ] === null) {
+        document.getElementById('error-survey').classList.add('visible');
+        return;
+      }
+      if (currentQ < QUESTIONS.length - 1) {
+        currentQ++;
+        renderQuestion(currentQ);
+      } else {
+        session.completedAt = Date.now();
+        saveSession(session);
+        navigate('result.html');
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQ > 0) {
+        currentQ--;
+        renderQuestion(currentQ);
+      }
+    }
+
+    renderQuestion(currentQ);
+  </script>
+
+</body>
+</html>

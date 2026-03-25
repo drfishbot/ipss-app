@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(open \"x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles\")",
+      "WebFetch(domain:github.com)",
+      "Bash(claude plugin:*)",
+      "Bash(claude mcp:*)",
+      "Read(//private/tmp/interface-design/.claude/**)",
+      "Read(//private/tmp/interface-design/.claude-plugin/**)",
+      "Bash(mkdir -p ~/.claude/commands ~/.claude/skills ~/.claude-plugin)",
+      "Bash(cp -r /tmp/interface-design/.claude/commands/* ~/.claude/commands/)",
+      "Bash(cp -r /tmp/interface-design/.claude/skills/* ~/.claude/skills/)",
+      "Bash(cp -r /tmp/interface-design/.claude-plugin/* ~/.claude-plugin/)",
+      "Read(//private/tmp/ui-ux-pro-max-skill/src/**)",
+      "Read(//private/tmp/ui-ux-pro-max-skill/.claude/**)",
+      "Read(//private/tmp/ui-ux-pro-max-skill/**)",
+      "Bash(npm install:*)",
+      "Bash(uipro install:*)",
+      "Bash(uipro --help)",
+      "Bash(uipro init:*)",
+      "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"healthcare medical urology\" --domain color)",
+      "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"healthcare medical clinic professional trust\" --domain style)"
+    ]
+  }
+}

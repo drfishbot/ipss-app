@@ -1,0 +1,217 @@
+/* ===== IPSS App - Shared Styles ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  background: #f0f4f8;
+  min-height: 100vh;
+  color: #1a2633;
+  font-size: 17px;
+}
+
+/* ===== Header ===== */
+.app-header {
+  background: #1a3a5c;
+  color: white;
+  padding: 16px 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.app-header .logo-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+.app-header h1 { font-size: 1.15rem; font-weight: 700; }
+.app-header p { font-size: 0.78rem; opacity: 0.7; margin-top: 2px; }
+
+/* ===== Container / Card ===== */
+.container { max-width: 520px; margin: 0 auto; padding: 20px 16px 40px; }
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  margin-bottom: 16px;
+}
+
+/* ===== Legacy header (index/result simple layout) ===== */
+.header { text-align: center; margin-bottom: 24px; }
+.header .logo { font-size: 48px; margin-bottom: 8px; }
+.header h1 { font-size: 24px; color: #1a3a5c; font-weight: 700; }
+.header .subtitle { font-size: 12px; color: #888; margin-top: 4px; }
+.header .desc { font-size: 14px; color: #555; margin-top: 12px; }
+
+/* ===== Identity Options ===== */
+.id-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.id-option {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px; border: 2px solid #e0e8f0; border-radius: 12px;
+  cursor: pointer; transition: all 0.2s;
+}
+.id-option:hover { border-color: #2d6db5; background: #f0f6ff; }
+.id-option.active { border-color: #2d6db5; background: #e8f2ff; }
+.option-icon { font-size: 28px; }
+.option-label { font-size: 17px; font-weight: 600; color: #1a3a5c; }
+
+/* identity-options + identity-btn (enhanced index) */
+.identity-options { display: flex; flex-direction: column; gap: 12px; }
+.identity-btn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px; border: 2px solid #e0e8f0; border-radius: 12px;
+  background: white; cursor: pointer; text-align: left;
+  font-family: inherit; font-size: 1rem; color: #1a2633;
+  transition: border-color 0.2s, background 0.2s;
+}
+.identity-btn:hover, .identity-btn:focus { border-color: #2d6db5; background: #f0f6ff; outline: none; }
+.identity-btn .btn-icon { font-size: 1.8rem; flex-shrink: 0; width: 40px; text-align: center; }
+.identity-btn .btn-label { font-weight: 600; display: block; }
+.identity-btn .btn-desc { font-size: 0.82rem; color: #888; margin-top: 2px; display: block; }
+
+/* ===== Input fields ===== */
+.input-area { margin-top: 16px; }
+.input-group { display: none; flex-direction: column; gap: 10px; margin-top: 12px; }
+.input-group.active { display: flex; }
+.input-group label { font-weight: 600; font-size: 0.95rem; color: #1a3a5c; }
+.hidden { display: none !important; }
+.text-input, .input-group input {
+  width: 100%; padding: 14px 16px; font-size: 16px;
+  border: 2px solid #e0e8f0; border-radius: 10px;
+  margin-bottom: 4px; outline: none; font-family: inherit;
+  transition: border-color 0.2s;
+}
+.text-input:focus, .input-group input:focus { border-color: #2d6db5; }
+
+/* ===== Buttons ===== */
+.btn-primary {
+  width: 100%; padding: 16px; background: #2d6db5; color: #fff;
+  font-size: 17px; font-weight: 700; border: none; border-radius: 10px;
+  cursor: pointer; font-family: inherit; transition: background 0.2s;
+}
+.btn-primary:hover, .btn-primary:focus { background: #1a4e8a; outline: none; }
+.btn-secondary {
+  padding: 14px 24px; background: #f0f4f8; color: #444;
+  font-size: 16px; font-weight: 600; border: 2px solid #e0e8f0;
+  border-radius: 10px; cursor: pointer; font-family: inherit;
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn-secondary:hover, .btn-secondary:focus { border-color: #2d6db5; background: #e8f2ff; outline: none; }
+
+/* ===== Progress bar ===== */
+.progress-section { margin-bottom: 16px; }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.progress-label { font-size: 0.88rem; color: #888; }
+.progress-count { font-size: 0.95rem; font-weight: 700; color: #1a3a5c; }
+.progress-bar-track { background: #e0e8f0; border-radius: 99px; height: 9px; overflow: hidden; }
+.progress-bar-fill {
+  background: linear-gradient(90deg, #2d6db5, #5dade2);
+  height: 100%; border-radius: 99px; transition: width 0.4s ease;
+}
+/* legacy progress */
+.progress-bar-wrap { height: 8px; background: #e0e8f0; border-radius: 4px; margin: 16px 0 8px; }
+.progress-bar { height: 100%; background: #2d6db5; border-radius: 4px; transition: width 0.3s; }
+.progress-text { font-size: 13px; color: #888; text-align: center; }
+
+/* ===== Survey question card ===== */
+.question-card { padding: 24px; }
+.question-number { font-size: 0.82rem; font-weight: 700; color: #2d6db5; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.question-text { font-size: 1.1rem; font-weight: 600; color: #1a3a5c; line-height: 1.55; margin-bottom: 22px; }
+.q-number { font-size: 13px; color: #2d6db5; font-weight: 700; margin-bottom: 12px; }
+.q-text { font-size: 18px; color: #1a3a5c; font-weight: 600; line-height: 1.6; margin-bottom: 24px; }
+
+/* ===== Option buttons ===== */
+.options-list, .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+.option-btn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border: 2px solid #e0e8f0; border-radius: 10px;
+  background: #fff; cursor: pointer; text-align: left;
+  font-family: inherit; font-size: 1rem; color: #1a2633;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+.option-btn:hover, .option-btn:focus { border-color: #2d6db5; background: #f0f6ff; outline: none; }
+.option-btn.selected { border-color: #2d6db5; background: #ddeaf8; }
+.option-score, .opt-score {
+  min-width: 32px; height: 32px; background: #e0e8f0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #2d6db5; font-size: 15px; flex-shrink: 0;
+  transition: background 0.15s;
+}
+.option-btn.selected .option-score,
+.option-btn.selected .opt-score { background: #2d6db5; color: #fff; }
+.option-text, .opt-label { font-size: 1rem; color: #333; line-height: 1.4; }
+
+/* ===== Survey navigation ===== */
+.survey-nav { display: flex; gap: 12px; }
+.survey-nav .btn-secondary { flex: 1; }
+.survey-nav .btn-next { flex: 2; }
+.nav-btns { display: flex; gap: 12px; }
+.nav-btns .btn-primary { flex: 1; }
+
+/* ===== Error message ===== */
+.error-msg { color: #b03030; font-size: 0.9rem; margin-top: 10px; display: none; font-weight: 500; }
+.error-msg.visible { display: block; }
+
+/* ===== Patient info bar ===== */
+.patient-info-bar {
+  background: #1a3a5c; color: white; border-radius: 12px;
+  padding: 12px 18px; font-size: 0.88rem; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.patient-info-bar .info-icon { font-size: 1.2rem; }
+
+/* ===== Result page ===== */
+.score-display { text-align: center; margin: 16px 0 20px; }
+.score-circle {
+  width: 120px; height: 120px; border-radius: 50%; border: 6px solid #2d6db5;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin: 0 auto;
+}
+.score-num { font-size: 42px; font-weight: 800; color: #2d6db5; line-height: 1; }
+.score-label { font-size: 13px; color: #888; margin-top: 2px; }
+.severity-badge {
+  display: block; text-align: center; width: fit-content;
+  margin: 0 auto 12px;
+  padding: 6px 24px; border-radius: 20px;
+  color: #fff; font-size: 16px; font-weight: 700;
+}
+.severity-desc { font-size: 15px; color: #444; text-align: center; margin-bottom: 20px; line-height: 1.6; }
+.treatment-section { margin-top: 4px; }
+.treatment-section h3 { font-size: 16px; color: #1a3a5c; font-weight: 700; margin-bottom: 12px; }
+.treatment-section ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.treatment-section li { font-size: 15px; color: #333; line-height: 1.5; padding: 12px 14px; background: #f7faff; border-radius: 8px; }
+.result-footer { margin-top: 24px; text-align: center; }
+.result-footer p { font-size: 13px; color: #888; margin-bottom: 16px; }
+
+/* ===== Notice / welcome ===== */
+.welcome-title { font-size: 1.35rem; font-weight: 700; color: #1a3a5c; margin-bottom: 6px; }
+.welcome-subtitle { color: #666; font-size: 0.92rem; margin-bottom: 24px; }
+.notice-box {
+  background: #eef5fc; border-left: 4px solid #2d6db5;
+  border-radius: 8px; padding: 14px 16px;
+  font-size: 0.85rem; color: #666; margin-top: 4px;
+}
+.notice-box strong { color: #1a3a5c; }
+
+/* ===== Footer ===== */
+.app-footer { text-align: center; color: #aaa; font-size: 0.75rem; padding: 20px 16px; line-height: 1.6; }
+
+/* ===== Touch optimization ===== */
+.option-btn, .identity-btn, .btn-primary, .btn-secondary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.option-btn { min-height: 54px; }
+.identity-btn { min-height: 60px; }
+.btn-primary { min-height: 52px; }
+.btn-secondary { min-height: 52px; }
+
+/* ===== Responsive ===== */
+@media (min-width: 480px) {
+  body { font-size: 18px; }
+  .container { padding: 28px 20px 48px; }
+  .question-text, .q-text { font-size: 1.15rem; }
+}
+
+@media (max-width: 400px) {
+  .option-btn { padding: 16px 14px; font-size: 0.95rem; }
+  .identity-btn { padding: 18px 14px; }
+  .survey-nav { gap: 8px; }
+  .survey-nav .btn-secondary, .survey-nav .btn-next { padding: 16px 10px; font-size: 15px; }
+}

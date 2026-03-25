@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPSS 評估結果</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <span class="logo-icon">🏥</span>
+    <h1>IPSS 評估結果</h1>
+    <p>International Prostate Symptom Score</p>
+  </header>
+
+  <main class="container">
+
+    <div id="patient-bar" class="patient-info-bar" style="display:none;">
+      <span class="info-icon">👤</span>
+      <span id="patient-label"></span>
+    </div>
+
+    <!-- Score + Grade -->
+    <div class="card">
+      <div class="score-display">
+        <svg id="score-gauge" viewBox="0 0 220 140" width="220" height="140" style="display:block;margin:0 auto;overflow:visible;">
+          <path id="gauge-bg-mild"     fill="none" stroke="#8fd4a4" stroke-width="20" stroke-linecap="butt"/>
+          <path id="gauge-bg-moderate" fill="none" stroke="#f5c882" stroke-width="20" stroke-linecap="butt"/>
+          <path id="gauge-bg-severe"   fill="none" stroke="#f0908a" stroke-width="20" stroke-linecap="butt"/>
+          <path id="gauge-fill" d="" fill="none" stroke="#27ae60" stroke-width="20" stroke-linecap="round"/>
+          <text id="gauge-score-text" x="110" y="90" text-anchor="middle" font-size="48" font-weight="800" fill="#27ae60" font-family="-apple-system,'PingFang TC',sans-serif">--</text>
+          <text x="110" y="118" text-anchor="middle" font-size="13" fill="#999" font-family="-apple-system,'PingFang TC',sans-serif">總分 / 35</text>
+          <text x="22"  y="138" text-anchor="middle" font-size="11" fill="#999">0</text>
+          <text x="198" y="138" text-anchor="middle" font-size="11" fill="#999">35</text>
+        </svg>
+      </div>
+      <div style="display:flex;justify-content:center;gap:14px;margin:4px 0 12px;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#555;"><span style="width:12px;height:12px;border-radius:50%;background:#8fd4a4;display:inline-block;"></span>輕度 0–7</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#555;"><span style="width:12px;height:12px;border-radius:50%;background:#f5c882;display:inline-block;"></span>中度 8–19</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#555;"><span style="width:12px;height:12px;border-radius:50%;background:#f0908a;display:inline-block;"></span>重度 20–35</span>
+      </div>
+      <div class="severity-badge" id="severity-badge"></div>
+      <div class="severity-desc" id="severity-desc"></div>
+    </div>
+
+    <!-- Treatment recommendations -->
+    <div class="card">
+      <div class="treatment-section">
+        <h3>🩺 建議治療方向</h3>
+        <div id="treatment-content"></div>
+      </div>
+    </div>
+
+    <!-- Answer review -->
+    <div class="card">
+      <div class="treatment-section">
+        <h3>📋 作答回顧</h3>
+        <table id="answer-table" style="width:100%; border-collapse:collapse; font-size:14px; margin-top:8px;">
+          <thead>
+            <tr style="background:#eef5fc; color:#1a3a5c;">
+              <th style="text-align:left; padding:8px 10px; border-bottom:2px solid #e0e8f0;">題目</th>
+              <th style="text-align:center; padding:8px 10px; border-bottom:2px solid #e0e8f0; white-space:nowrap;">分數</th>
+            </tr>
+          </thead>
+          <tbody id="answer-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="result-footer">
+      <p>⚠️ 以上結果僅供參考，請依照醫師評估為準。</p>
+      <button class="btn-primary" onclick="restart()">重新填寫</button>
+    </div>
+
+  </main>
+
+  <footer class="app-footer">
+    IPSS © American Urological Association &nbsp;|&nbsp; 僅供醫療參考使用
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    const session = getSession();
+
+    // If no completed session, redirect to start
+    if (!session.identity || !session.answers || session.answers.length < QUESTIONS.length) {
+      navigate('index.html');
+    }
+
+    // Patient info bar
+    if (session.identity && session.identity.type !== 'anonymous') {
+      const bar = document.getElementById('patient-bar');
+      const typeLabel = session.identity.type === 'name' ? '姓名' : '身分證字號';
+      document.getElementById('patient-label').textContent = typeLabel + '：' + session.identity.value;
+      bar.style.display = 'flex';
+    }
+
+    const answers = session.answers;
+    const total = answers.reduce((a, b) => a + b, 0);
+    const grade = getGrade(total);
+    const info = RESULTS[grade];
+
+    const colors = { mild: '#27ae60', moderate: '#e67e22', severe: '#e74c3c' };
+    const c = colors[grade];
+
+    // SVG gauge
+    (function() {
+      const CX = 110, CY = 110, R = 88;
+      function pt(s) {
+        const a = (s / 35) * Math.PI;
+        return [(CX - R * Math.cos(a)).toFixed(1), (CY - R * Math.sin(a)).toFixed(1)];
+      }
+      function arc(s1, s2) {
+        if (s1 >= s2) return '';
+        const [x1, y1] = pt(s1), [x2, y2] = pt(s2);
+        const large = (s2 - s1) / 35 > 0.5 ? 1 : 0;
+        return 'M ' + x1 + ' ' + y1 + ' A ' + R + ' ' + R + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2;
+      }
+      function fillPath(s) {
+        if (s <= 0) return '';
+        if (s >= 35) {
+          var [xm, ym] = pt(17.5);
+          var [xe, ye] = pt(35);
+          return 'M 22 110 A ' + R + ' ' + R + ' 0 0 1 ' + xm + ' ' + ym + ' A ' + R + ' ' + R + ' 0 0 1 ' + xe + ' ' + ye;
+        }
+        const [x, y] = pt(s);
+        const large = s / 35 > 0.5 ? 1 : 0;
+        return 'M 22 110 A ' + R + ' ' + R + ' 0 ' + large + ' 1 ' + x + ' ' + y;
+      }
+
+      // Zone backgrounds
+      document.getElementById('gauge-bg-mild').setAttribute('d', arc(0, 7));
+      document.getElementById('gauge-bg-moderate').setAttribute('d', arc(7, 19));
+      document.getElementById('gauge-bg-severe').setAttribute('d', arc(19, 35));
+
+      // Fill
+      document.getElementById('gauge-fill').setAttribute('d', fillPath(total));
+      document.getElementById('gauge-fill').setAttribute('stroke', c);
+      document.getElementById('gauge-score-text').textContent = total;
+      document.getElementById('gauge-score-text').setAttribute('fill', c);
+    })();
+
+    // Severity badge
+    const badge = document.getElementById('severity-badge');
+    badge.textContent = info.grade + '（' + info.range + '）';
+    badge.style.background = c;
+
+    // Summary
+    document.getElementById('severity-desc').textContent = info.summary;
+
+    // Treatment section
+    const container = document.getElementById('treatment-content');
+
+    // Mild: lifestyle only
+    if (info.lifestyle) {
+      container.innerHTML = `
+        <div style="background:#f0f6ff;border-radius:12px;padding:16px;">
+          <div style="font-size:0.9rem;font-weight:700;color:#1a3a5c;margin-bottom:10px;">💡 建議生活調整</div>
+          <ul style="margin:0;padding-left:18px;color:#444;line-height:2.2;font-size:0.95rem;">
+            ${info.lifestyle.tips.map(t=>`<li>${t}</li>`).join('')}
+          </ul>
+        </div>`;
+    }
+
+    // Moderate / Severe: comparison table
+    if (info.table) {
+      const t = info.table;
+
+      // 表頭：圖示 + 名稱 + 副標 + 星星
+      const thCells = t.cols.map(col => {
+        const hlBg   = col.highlight ? '#1a3a5c' : '#eef5fc';
+        const hlText = col.highlight ? '#fff'    : '#1a3a5c';
+        const badge  = col.badge
+          ? `<div style="background:#f5a623;color:#1a3a5c;border-radius:20px;padding:1px 8px;font-size:0.65rem;font-weight:700;margin:3px auto 0;display:inline-block;">${col.badge}</div>`
+          : '';
+        return `<th style="background:${hlBg};color:${hlText};padding:10px 6px;text-align:center;font-size:0.8rem;min-width:70px;border-radius:8px 8px 0 0;">
+          <div style="font-size:1.2rem;">${col.icon}</div>
+          <div style="font-weight:700;margin-top:2px;">${col.name}</div>
+          <div style="font-size:0.68rem;opacity:0.75;">${col.sub}</div>
+          <div style="margin-top:4px;">${renderStars(col.stars)}</div>
+          ${badge}
+        </th>`;
+      }).join('');
+
+      // 資料列
+      const trRows = t.rows.map((row, ri) => {
+        const rowBg = ri % 2 === 0 ? '#fff' : '#f8fbff';
+        const tdCells = t.cols.map(col => {
+          const val = row.values[col.key];
+          const isGood = val.startsWith('✅');
+          const isWarn = val.startsWith('⚠️');
+          const fg = isGood ? '#2e7d32' : isWarn ? '#b05000' : '#333';
+          const colBg = col.highlight ? '#f0f5ff' : rowBg;
+          return `<td style="background:${colBg};padding:10px 6px;text-align:center;font-size:0.8rem;color:${fg};border-bottom:1px solid #e8eef6;">${val}</td>`;
+        }).join('');
+        return `<tr><td style="background:${rowBg};padding:10px 8px;font-size:0.78rem;font-weight:600;color:#555;border-bottom:1px solid #e8eef6;white-space:nowrap;">${row.label}</td>${tdCells}</tr>`;
+      }).join('');
+
+      // 優缺點列
+      const prosRow = t.cols.map(col => {
+        const colBg = col.highlight ? '#e8f2ff' : '#f7faff';
+        return `<td style="background:${colBg};padding:8px 6px;vertical-align:top;border-bottom:1px solid #e8eef6;">
+          <ul style="margin:0;padding-left:12px;font-size:0.73rem;color:#444;line-height:1.6;">
+            ${t.pros[col.key].map(p=>`<li>${p}</li>`).join('')}
+          </ul>
+        </td>`;
+      }).join('');
+
+      const consRow = t.cols.map(col => {
+        const colBg = col.highlight ? '#e8f2ff' : '#f7faff';
+        return `<td style="background:${colBg};padding:8px 6px;vertical-align:top;">
+          <ul style="margin:0;padding-left:12px;font-size:0.73rem;color:#444;line-height:1.6;">
+            ${t.cons[col.key].map(c=>`<li>${c}</li>`).join('')}
+          </ul>
+        </td>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+          <table style="width:100%;border-collapse:separate;border-spacing:0;font-family:inherit;">
+            <thead>
+              <tr>
+                <th style="background:#f0f4f8;padding:10px 8px;text-align:left;font-size:0.78rem;color:#888;border-radius:8px 0 0 0;"></th>
+                ${thCells}
+              </tr>
+            </thead>
+            <tbody>
+              ${trRows}
+              <tr>
+                <td style="padding:8px;font-size:0.78rem;font-weight:600;color:#555;vertical-align:top;border-bottom:1px solid #e8eef6;">優點</td>
+                ${prosRow}
+              </tr>
+              <tr>
+                <td style="padding:8px;font-size:0.78rem;font-weight:600;color:#555;vertical-align:top;">注意</td>
+                ${consRow}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:10px;background:#fff8e1;border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#795548;">
+          ⚠️ 以上為一般性說明，實際治療方式請依醫師評估為準。
+        </div>`;
+    }
+
+    // Answer review table
+    const tbody = document.getElementById('answer-tbody');
+    QUESTIONS.forEach((q, i) => {
+      const score = answers[i];
+      const optLabel = q.options.find(o => o.score === score);
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #e0e8f0';
+      tr.innerHTML =
+        '<td style="padding:10px 10px; line-height:1.4; color:#444;">' + q.text + '</td>' +
+        '<td style="padding:10px 10px; text-align:center; font-weight:700; color:#2d6db5; white-space:nowrap;">' +
+          score + '<br><span style="font-size:11px; color:#888; font-weight:400;">' + (optLabel ? optLabel.label : '') + '</span>' +
+        '</td>';
+      tbody.appendChild(tr);
+    });
+
+    // Total row
+    const totalTr = document.createElement('tr');
+    totalTr.style.background = '#eef5fc';
+    totalTr.innerHTML =
+      '<td style="padding:10px 10px; font-weight:700; color:#1a3a5c;">總分</td>' +
+      '<td style="padding:10px 10px; text-align:center; font-weight:800; font-size:18px;" style="color:' + c + ';">' + total + '</td>';
+    tbody.appendChild(totalTr);
+
+    // Persist record to localStorage
+    const record = {
+      timestamp: new Date().toISOString(),
+      identity: session.identity,
+      score: total,
+      grade: info.grade,
+      answers: answers,
+    };
+    const records = JSON.parse(localStorage.getItem('ipss_records') || '[]');
+    records.push(record);
+    localStorage.setItem('ipss_records', JSON.stringify(records));
+
+    // Send to Google Sheets
+    const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbypbyrwJOj7AdeO3Hhu7jiio6t0wIrCwXsBVBQCEk0CDJsqKFrrcOL4mwzl0zAhEeQJcQ/exec';
+    fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record),
+    }).catch(() => {}); // 靜默失敗，不影響使用者
+
+    function restart() {
+      clearSession();
+      navigate('index.html');
+    }
+  </script>
+
+</body>
+</html>

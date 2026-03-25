@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPSS 攝護腺症狀評分問卷</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <span class="logo-icon">🏥</span>
+    <h1>IPSS 攝護腺症狀評分問卷</h1>
+    <p>International Prostate Symptom Score</p>
+  </header>
+
+  <main class="container">
+
+    <div class="card">
+      <h2 class="welcome-title">歡迎使用</h2>
+      <p class="welcome-subtitle">請選擇填寫方式，完成後我們將提供個人化的症狀評估報告。</p>
+
+      <div class="identity-options">
+
+        <button class="identity-btn" onclick="toggleInput('id-group', this)">
+          <span class="btn-icon">🪪</span>
+          <span>
+            <span class="btn-label">輸入身分證字號</span>
+            <span class="btn-desc">以身分證字號識別填寫紀錄</span>
+          </span>
+        </button>
+        <div class="input-group" id="id-group">
+          <label for="input-idno">請輸入身分證字號</label>
+          <input type="text" id="input-idno" placeholder="例：A123456789" autocomplete="off" maxlength="10">
+          <button class="btn-primary" onclick="startWithID()">開始填寫問卷</button>
+        </div>
+
+        <button class="identity-btn" onclick="startAnonymous()">
+          <span class="btn-icon">🔒</span>
+          <span>
+            <span class="btn-label">匿名填寫</span>
+            <span class="btn-desc">不留個人資料，直接進入問卷</span>
+          </span>
+        </button>
+
+      </div>
+      <p id="error-msg" class="error-msg"></p>
+    </div>
+
+    <div class="notice-box">
+      <strong>注意事項：</strong>本問卷僅供初步症狀評估，不能取代醫師診斷。如有任何疑慮，請諮詢泌尿科醫師。
+    </div>
+
+  </main>
+
+  <footer class="app-footer">
+    IPSS © American Urological Association &nbsp;|&nbsp; 僅供醫療參考使用
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    clearSession();
+    let activeInput = null;
+
+    function toggleInput(groupId, btn) {
+      const group = document.getElementById(groupId);
+      const allGroups = document.querySelectorAll('.input-group');
+      const allBtns = document.querySelectorAll('.identity-btn');
+      if (activeInput === groupId) {
+        group.classList.remove('active');
+        btn.style.borderColor = '';
+        activeInput = null;
+      } else {
+        allGroups.forEach(g => g.classList.remove('active'));
+        allBtns.forEach(b => { b.style.borderColor = ''; });
+        group.classList.add('active');
+        btn.style.borderColor = '#2d6db5';
+        activeInput = groupId;
+        setTimeout(() => group.querySelector('input').focus(), 80);
+      }
+      document.getElementById('error-msg').classList.remove('visible');
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    function startWithID() {
+      const v = document.getElementById('input-idno').value.trim().toUpperCase();
+      if (!v) { showErr('請輸入身分證字號後再繼續。'); return; }
+      if (!/^[A-Z][12]\d{8}$/.test(v)) { showErr('身分證字號格式不正確，請重新輸入。'); return; }
+      saveSession({ identity: { type: 'idno', value: v }, answers: [], startedAt: Date.now() });
+      navigate('survey.html');
+    }
+
+    function startAnonymous() {
+      saveSession({ identity: { type: 'anonymous', value: '匿名' }, answers: [], startedAt: Date.now() });
+      navigate('survey.html');
+    }
+
+    document.getElementById('input-idno').addEventListener('keydown', e => { if (e.key === 'Enter') startWithID(); });
+  </script>
+
+</body>
+</html>
