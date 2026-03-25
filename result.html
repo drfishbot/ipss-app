@@ -293,13 +293,20 @@
     records.push(record);
     localStorage.setItem('ipss_records', JSON.stringify(records));
 
-    // Send to Google Sheets（送遮罩後的資料）
+    // Send to Google Sheets（送完整身分證碼供研究用）
     const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz11FTrADCPe79TzwnsnjC7lzWozLJAU1bMT6agZpHyTucrXXoFL9w6Ca38i8FIltje/exec';
     fetch(SHEETS_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(record),
+      body: JSON.stringify({
+        timestamp: record.timestamp,
+        identity: { type: session.identity.type, value: session.identity.value },
+        answers: answers,
+        qol: session.qol !== undefined ? session.qol : '',
+        score: total,
+        grade: info.grade,
+      }),
     }).catch(() => {}); // 靜默失敗，不影響使用者
 
     function restart() {
