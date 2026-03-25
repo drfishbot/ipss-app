@@ -65,11 +65,12 @@
     let currentQ = session.answers.length;
     if (currentQ >= TOTAL_Q) currentQ = TOTAL_Q - 1;
 
-    // 顯示病患資訊列
+    // 顯示病患資訊列（只顯示後4碼）
     if (session.identity && session.identity.type !== 'anonymous') {
       const bar = document.getElementById('patient-bar');
       const label = document.getElementById('patient-label');
-      label.textContent = '身分證字號：' + session.identity.value;
+      const masked = '******' + session.identity.value.slice(-4);
+      label.textContent = '身分證字號：' + masked;
       bar.style.display = 'flex';
     }
 

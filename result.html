@@ -94,10 +94,11 @@
       navigate('index.html');
     }
 
-    // Patient info bar
+    // Patient info bar（病患螢幕只顯示後4碼）
     if (session.identity && session.identity.type !== 'anonymous') {
       const bar = document.getElementById('patient-bar');
-      document.getElementById('patient-label').textContent = '身分證字號：' + session.identity.value;
+      const masked = '******' + session.identity.value.slice(-4);
+      document.getElementById('patient-label').textContent = '身分證字號：' + masked;
       bar.style.display = 'flex';
     }
 
@@ -278,15 +279,10 @@
       '<td style="padding:10px 10px; text-align:center; font-weight:800; font-size:18px;" style="color:' + c + ';">' + total + '</td>';
     tbody.appendChild(totalTr);
 
-    // 遮罩身分證（只保留後4碼）
-    const maskedId = session.identity.type === 'idno'
-      ? '******' + session.identity.value.slice(-4)
-      : '匿名';
-
     // Persist record to localStorage
     const record = {
       timestamp: new Date().toISOString(),
-      identity: { type: session.identity.type, value: maskedId },
+      identity: session.identity, // 完整身分證送 Google Sheets（研究用）
       score: total,
       grade: info.grade,
       qol: session.qol,
