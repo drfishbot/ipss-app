@@ -20,7 +20,15 @@
       "Bash(uipro --help)",
       "Bash(uipro init:*)",
       "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"healthcare medical urology\" --domain color)",
-      "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"healthcare medical clinic professional trust\" --domain style)"
+      "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"healthcare medical clinic professional trust\" --domain style)",
+      "Bash(gh auth:*)",
+      "Bash(brew install:*)",
+      "Bash(gh repo:*)",
+      "Bash(git remote:*)",
+      "Bash(git push:*)",
+      "Bash(gh api:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

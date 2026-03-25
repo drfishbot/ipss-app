@@ -89,6 +89,25 @@ const QUESTIONS = [
   },
 ];
 
+// ===== QoL 第8題（生活品質，獨立計分 0–6，不計入 IPSS 總分）=====
+const QOL_QUESTION = {
+  id: 8,
+  qol: true,
+  text: '如果您今後的排尿狀況將一直像現在這樣，您覺得如何？',
+  options: [
+    { score: 0, label: '非常好' },
+    { score: 1, label: '好' },
+    { score: 2, label: '大致滿意' },
+    { score: 3, label: '好壞參半' },
+    { score: 4, label: '大致不滿意' },
+    { score: 5, label: '很糟' },
+    { score: 6, label: '很難受' },
+  ],
+};
+
+const QOL_LABELS = ['非常好', '好', '大致滿意', '好壞參半', '大致不滿意', '很糟', '很難受'];
+const QOL_COLORS = ['#27ae60','#27ae60','#52be80','#e67e22','#d35400','#e74c3c','#c0392b'];
+
 // 星星評分產生器（支援半顆）
 function renderStars(n) {
   let s = '';

@@ -45,6 +45,11 @@
 
   </main>
 
+  <!-- 撤銷 Toast -->
+  <div id="undo-toast" style="display:none;position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#1a3a5c;color:#fff;padding:12px 22px;border-radius:24px;font-size:15px;z-index:999;cursor:pointer;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.25);user-select:none;">
+    已選擇 &nbsp;·&nbsp; <strong>點此取消</strong> ✕
+  </div>
+
   <footer class="app-footer">
     IPSS © American Urological Association &nbsp;|&nbsp; 僅供醫療參考使用
   </footer>
@@ -52,37 +57,40 @@
   <script src="app.js"></script>
   <script>
     const session = getSession();
-
-    if (!session.identity) {
-      navigate('index.html');
-    }
-
+    if (!session.identity) navigate('index.html');
     if (!session.answers) session.answers = [];
 
+    const TOTAL_Q = QUESTIONS.length + 1; // 7 題 IPSS + 1 題 QoL = 8
+
     let currentQ = session.answers.length;
-    if (currentQ >= QUESTIONS.length) currentQ = QUESTIONS.length - 1;
+    if (currentQ >= TOTAL_Q) currentQ = TOTAL_Q - 1;
 
     // 顯示病患資訊列
     if (session.identity && session.identity.type !== 'anonymous') {
       const bar = document.getElementById('patient-bar');
       const label = document.getElementById('patient-label');
-      const typeLabel = session.identity.type === 'name' ? '姓名' : '身分證字號';
-      label.textContent = typeLabel + '：' + session.identity.value;
+      label.textContent = '身分證字號：' + session.identity.value;
       bar.style.display = 'flex';
     }
 
+    function isQolIdx(idx) { return idx === QUESTIONS.length; } // idx=7
+
+    function currentAnswer(idx) {
+      return isQolIdx(idx) ? session.qol : session.answers[idx];
+    }
+
     function renderQuestion(idx) {
-      const q = QUESTIONS[idx];
-      const answers = session.answers;
+      const q = isQolIdx(idx) ? QOL_QUESTION : QUESTIONS[idx];
+      const selected = currentAnswer(idx);
 
       document.getElementById('question-number').textContent = '第 ' + (idx + 1) + ' 題';
       document.getElementById('question-text').textContent = q.text;
-      document.getElementById('progress-count').textContent = (idx + 1) + ' / ' + QUESTIONS.length;
-      document.getElementById('progress-bar').style.width = ((idx + 1) / QUESTIONS.length * 100) + '%';
+      document.getElementById('progress-count').textContent = (idx + 1) + ' / ' + TOTAL_Q;
+      document.getElementById('progress-bar').style.width = ((idx + 1) / TOTAL_Q * 100) + '%';
       document.getElementById('btn-prev').style.visibility = idx === 0 ? 'hidden' : 'visible';
 
       const btnNext = document.getElementById('btn-next');
-      btnNext.textContent = idx === QUESTIONS.length - 1 ? '查看結果 ✓' : '下一題 →';
+      btnNext.textContent = idx === TOTAL_Q - 1 ? '查看結果 ✓' : '下一題 →';
 
       document.getElementById('error-survey').classList.remove('visible');
 
@@ -90,7 +98,7 @@
       list.innerHTML = '';
       q.options.forEach(opt => {
         const btn = document.createElement('button');
-        btn.className = 'option-btn' + (answers[idx] === opt.score ? ' selected' : '');
+        btn.className = 'option-btn' + (selected === opt.score ? ' selected' : '');
         btn.innerHTML =
           '<span class="option-score">' + opt.score + '</span>' +
           '<span class="option-text">' + opt.label + '</span>';
@@ -99,22 +107,44 @@
       });
     }
 
+    // ===== 撤銷機制 =====
     let autoAdvanceTimer = null;
+    const undoToast = document.getElementById('undo-toast');
+
+    function showUndoToast() {
+      undoToast.style.display = 'block';
+      undoToast.onclick = () => {
+        clearTimeout(autoAdvanceTimer);
+        undoToast.style.display = 'none';
+      };
+    }
+    function hideUndoToast() { undoToast.style.display = 'none'; }
 
     function selectOption(qIdx, score) {
-      session.answers[qIdx] = score;
+      if (isQolIdx(qIdx)) {
+        session.qol = score;
+      } else {
+        session.answers[qIdx] = score;
+      }
       saveSession(session);
       renderQuestion(qIdx);
       clearTimeout(autoAdvanceTimer);
-      autoAdvanceTimer = setTimeout(() => nextQuestion(), 400);
+      showUndoToast();
+      autoAdvanceTimer = setTimeout(() => {
+        hideUndoToast();
+        nextQuestion();
+      }, 900);
     }
 
     function nextQuestion() {
-      if (session.answers[currentQ] === undefined || session.answers[currentQ] === null) {
+      clearTimeout(autoAdvanceTimer);
+      hideUndoToast();
+      const ans = currentAnswer(currentQ);
+      if (ans === undefined || ans === null) {
         document.getElementById('error-survey').classList.add('visible');
         return;
       }
-      if (currentQ < QUESTIONS.length - 1) {
+      if (currentQ < TOTAL_Q - 1) {
         currentQ++;
         renderQuestion(currentQ);
       } else {
@@ -125,6 +155,8 @@
     }
 
     function prevQuestion() {
+      clearTimeout(autoAdvanceTimer);
+      hideUndoToast();
       if (currentQ > 0) {
         currentQ--;
         renderQuestion(currentQ);

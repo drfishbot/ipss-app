@@ -42,6 +42,12 @@
       </div>
       <div class="severity-badge" id="severity-badge"></div>
       <div class="severity-desc" id="severity-desc"></div>
+      <!-- QoL 生活品質 -->
+      <div id="qol-display" style="text-align:center;margin:4px 0 8px;padding:10px 16px;background:#f8faff;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:10px;">
+        <span style="font-size:13px;color:#888;">生活品質（Q8）</span>
+        <span id="qol-score-text" style="font-weight:800;font-size:18px;"></span>
+        <span id="qol-label-text" style="font-size:14px;color:#555;"></span>
+      </div>
     </div>
 
     <!-- Treatment recommendations -->
@@ -84,15 +90,14 @@
     const session = getSession();
 
     // If no completed session, redirect to start
-    if (!session.identity || !session.answers || session.answers.length < QUESTIONS.length) {
+    if (!session.identity || !session.answers || session.answers.length < QUESTIONS.length || session.qol === undefined) {
       navigate('index.html');
     }
 
     // Patient info bar
     if (session.identity && session.identity.type !== 'anonymous') {
       const bar = document.getElementById('patient-bar');
-      const typeLabel = session.identity.type === 'name' ? '姓名' : '身分證字號';
-      document.getElementById('patient-label').textContent = typeLabel + '：' + session.identity.value;
+      document.getElementById('patient-label').textContent = '身分證字號：' + session.identity.value;
       bar.style.display = 'flex';
     }
 
@@ -148,6 +153,12 @@
 
     // Summary
     document.getElementById('severity-desc').textContent = info.summary;
+
+    // QoL 生活品質顯示
+    const qolScore = session.qol;
+    document.getElementById('qol-score-text').textContent = qolScore + ' / 6';
+    document.getElementById('qol-score-text').style.color = QOL_COLORS[qolScore];
+    document.getElementById('qol-label-text').textContent = QOL_LABELS[qolScore];
 
     // Treatment section
     const container = document.getElementById('treatment-content');
@@ -217,7 +228,8 @@
       }).join('');
 
       container.innerHTML = `
-        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+        <div style="font-size:12px;color:#aaa;text-align:right;margin-bottom:4px;">← 左右滑動查看 →</div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
           <table style="width:100%;border-collapse:separate;border-spacing:0;font-family:inherit;">
             <thead>
               <tr>
@@ -266,19 +278,25 @@
       '<td style="padding:10px 10px; text-align:center; font-weight:800; font-size:18px;" style="color:' + c + ';">' + total + '</td>';
     tbody.appendChild(totalTr);
 
+    // 遮罩身分證（只保留後4碼）
+    const maskedId = session.identity.type === 'idno'
+      ? '******' + session.identity.value.slice(-4)
+      : '匿名';
+
     // Persist record to localStorage
     const record = {
       timestamp: new Date().toISOString(),
-      identity: session.identity,
+      identity: { type: session.identity.type, value: maskedId },
       score: total,
       grade: info.grade,
+      qol: session.qol,
       answers: answers,
     };
     const records = JSON.parse(localStorage.getItem('ipss_records') || '[]');
     records.push(record);
     localStorage.setItem('ipss_records', JSON.stringify(records));
 
-    // Send to Google Sheets
+    // Send to Google Sheets（送遮罩後的資料）
     const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbypbyrwJOj7AdeO3Hhu7jiio6t0wIrCwXsBVBQCEk0CDJsqKFrrcOL4mwzl0zAhEeQJcQ/exec';
     fetch(SHEETS_URL, {
       method: 'POST',
