@@ -95,17 +95,17 @@ const QOL_QUESTION = {
   qol: true,
   text: '如果您今後的排尿狀況將一直像現在這樣，您覺得如何？',
   options: [
-    { score: 0, label: '非常好' },
-    { score: 1, label: '好' },
-    { score: 2, label: '大致滿意' },
-    { score: 3, label: '好壞參半' },
-    { score: 4, label: '大致不滿意' },
-    { score: 5, label: '很糟' },
-    { score: 6, label: '很難受' },
+    { score: 0, label: '很高興，完全不困擾' },
+    { score: 1, label: '滿意，幾乎不困擾' },
+    { score: 2, label: '還好，稍微困擾' },
+    { score: 3, label: '說不上好壞，有點困擾' },
+    { score: 4, label: '不太滿意，感到困擾' },
+    { score: 5, label: '很不高興，相當困擾' },
+    { score: 6, label: '很痛苦，非常困擾' },
   ],
 };
 
-const QOL_LABELS = ['非常好', '好', '大致滿意', '好壞參半', '大致不滿意', '很糟', '很難受'];
+const QOL_LABELS = ['很高興', '滿意', '還好', '說不上好壞', '不太滿意', '很不高興', '很痛苦'];
 const QOL_COLORS = ['#27ae60','#27ae60','#52be80','#e67e22','#d35400','#e74c3c','#c0392b'];
 
 // 星星評分產生器（支援半顆）
