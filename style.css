@@ -20,6 +20,30 @@ body {
 .app-header .logo-icon { font-size: 28px; display: block; margin-bottom: 4px; }
 .app-header h1 { font-size: 1.15rem; font-weight: 700; }
 .app-header p { font-size: 0.78rem; opacity: 0.7; margin-top: 2px; }
+.hospital-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.hospital-logo {
+  height: 44px;
+  width: auto;
+  background: white;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.dept-tag {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 2px;
+}
 
 /* ===== Container / Card ===== */
 .container { max-width: 520px; margin: 0 auto; padding: 20px 16px 40px; }
